@@ -1,0 +1,3 @@
+#Ignorar archivos innecesarios para el git
+*.vcd
+*.vvp
