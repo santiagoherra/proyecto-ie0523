@@ -30,18 +30,18 @@ module receptorMDIO(
 reg [31:0] shift_reg; //Registro para almacenar toda la informacion por partes que se 
 reg [4:0] bit_count; //formato de transaccion de MDIO
 reg [2:0] next_state; //manejo de estados para el modulo
+reg [4:0] bit_count_lectura; //conteo de bit a bit para mandar datos de la direccion de memoria de los
+//registros en modo lectura
 
 // DEFINICION DE ESTADOS
-localparam IDLE    = 3'b000,
-            RESET   = 3'b001,
-            RECEIVE = 3'b010,
-            DONE    = 3'b011,
-            WRITE   = 3'b100,
-            READ    = 3'b101;
+localparam IDLE    = 3'b000, //estado quieto para tomar desicion
+            RECEIVE = 3'b010, //estado de recibir datos de MDIO OUT 
+            DONE    = 3'b011, //estado terminado para dividir la informacion y pasar a la accion de escritura o lectura
+            WRITE   = 3'b100, //estado de escritura
+            READ    = 3'b101; //estado de lectura
 
 always @(posedge MDC or posedge reset) begin
-
-    if (reset) begin
+    if(reset)begin
         bit_count <= 0;
         shift_reg <= 0;
         MDIO_DONE <= 0;
@@ -85,8 +85,13 @@ always @(posedge MDC or posedge reset) begin
                 next_state <= IDLE;
             end
             READ: begin
-                MDIO_IN <= RD_DATA;
-                next_state <= IDLE;
+                if (bit_count_lectura >= 0) begin
+                    MDIO_IN <= RD_DATA[bit_count_lectura];
+                    bit_count_lectura <= bit_count_lectura - 1;
+                    if (bit_count_lectura == 0) begin
+                        next_state <= IDLE;
+                    end
+                end
             end
             default: begin
                 next_state <= IDLE;
@@ -94,4 +99,7 @@ always @(posedge MDC or posedge reset) begin
         endcase
     end
 end
+
+
+
 endmodule
