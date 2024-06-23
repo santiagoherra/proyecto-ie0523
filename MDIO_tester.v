@@ -29,12 +29,24 @@ initial begin
     //Caso de Escritura
     #10
     reset =1;
-    T_DATA = 32'h8C6AF5B5; 
+    T_DATA = 32'h5C6AF5B5;  // write 5 = 0101
     #10 
     MDIO_START = 1;
     #10
     MDIO_START = 0;
-    #400
+    #350
+    T_DATA = 32'h6FB246C4;  // write 6 = 0110
+    #10 
+    MDIO_START = 1;
+    #10
+    MDIO_START = 0;
+    #350
+    T_DATA = 32'h9C78402B;  // write sin start frame = 1001
+    #10 
+    MDIO_START = 1;
+    #10
+    MDIO_START = 0;
+    #350
     $finish;  
 end
 
