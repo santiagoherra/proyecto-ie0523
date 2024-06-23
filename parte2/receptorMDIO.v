@@ -11,30 +11,25 @@ Carnet: C1721
 Evualuacion: Proyecto
 */
 
-
-//DEFINICION DE PRUEBAS PARA COMPROBAR FUNCIONAMIENTO
-
-
-
 //entradas y salidas del receptor
 module receptorMDIO(
     input MDC,
     input reset,
     input MDIO_OUT,
-    input MDIIO_OE,
+    input MDIO_OE,
     input [0:15] RD_DATA,
     output reg MDIO_IN,
     output reg [0:4] ADDR,
     output reg [0:15] WR_DATA,
     output reg MDIO_DONE,
-    output reg WR_STB;
+    output reg WR_STB
 );
 
 //REGISTROS LOCALES
 
-reg [31:0] shift_reg;
-reg [4:0] bit_count;
-reg [2:0] next_state;
+reg [31:0] shift_reg; //Registro para almacenar toda la informacion por partes que se 
+reg [4:0] bit_count; //formato de transaccion de MDIO
+reg [2:0] next_state; //manejo de estados para el modulo
 
 // DEFINICION DE ESTADOS
 localparam IDLE    = 3'b000,
