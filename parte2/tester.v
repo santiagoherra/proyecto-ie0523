@@ -60,28 +60,27 @@ initial begin
     #4 MDIO_OUT = 0; #4 MDIO_OUT = 1; #4 MDIO_OUT = 0; #4 MDIO_OUT = 1; // Data
     #4 MDIO_OE = 0;
 
-    //01100100010100010101010101010101
+    //01010100010100010101010101010101
 
-    #200
+
+    #4 MDIO_OUT = 0;
+
+    #200 
 
     #6 reset = 1;
     #6 reset = 0;
 
     // Simulación de transacción de lectura MDIO
-    #50;
+    #6;
     MDIO_OE = 1;
     MDIO_OUT = 1; #4 MDIO_OUT = 1; // Start of frame
-    #4 MDIO_OUT = 0; #4 MDIO_OUT = 1; // Operation code lectura
+    #4 MDIO_OUT = 1; #4 MDIO_OUT = 0; // Operation code lectura
     #4 MDIO_OUT = 0; #4 MDIO_OUT = 1; #4 MDIO_OUT = 0; #4 MDIO_OUT = 0; // PHY address
     #4 MDIO_OUT = 0; // PHY address
     #4 MDIO_OUT = 1; #4 MDIO_OUT = 0; #4 MDIO_OUT = 1; #4 MDIO_OUT = 0; // Register address
     #4 MDIO_OUT = 0; // Register address
     #4 MDIO_OUT = 0; #4 MDIO_OUT = 1; //TA
-    #4 MDIO_OUT = 0; #4 MDIO_OUT = 1; #4 MDIO_OUT = 0; #4 MDIO_OUT = 1; // Data
-    #4 MDIO_OUT = 0; #4 MDIO_OUT = 1; #4 MDIO_OUT = 0; #4 MDIO_OUT = 1; // Data
-    #4 MDIO_OUT = 0; #4 MDIO_OUT = 1; #4 MDIO_OUT = 0; #4 MDIO_OUT = 1; // Data
-    #4 MDIO_OUT = 0; #4 MDIO_OUT = 1; #4 MDIO_OUT = 0; #4 MDIO_OUT = 1; // Data
-    MDIO_OE = 0;
+    #4 MDIO_OE = 0;
 
     #160
 

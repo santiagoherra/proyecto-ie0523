@@ -50,6 +50,7 @@ always @(posedge MDC or posedge reset) begin
         ADDR <= 0;
         WR_DATA <= 0;
         next_state <= IDLE;
+        bit_count_lectura = 0;
     end else begin
         case (next_state)
             IDLE: begin
@@ -64,14 +65,18 @@ always @(posedge MDC or posedge reset) begin
                     if (bit_count == 31) begin
                         next_state <= DONE;
                     end
+                end else begin
+                    if(bit_count == 16)begin
+                    next_state <= DONE;
+                    end
                 end
             end
             DONE: begin
                 MDIO_DONE <= 1;
                 ADDR <= shift_reg[23:18];
-                if (shift_reg[30:29] == 2'b01) begin
+                if (shift_reg[29:28] == 2'b01) begin
                     next_state <= WRITE;
-                end else if (shift_reg[30:29] == 2'b10) begin
+                end else if (shift_reg[29:28] == 2'b10) begin
                     next_state <= READ;
                 end else begin
                     next_state <= IDLE;
@@ -83,14 +88,12 @@ always @(posedge MDC or posedge reset) begin
                 next_state <= IDLE;
             end
             READ: begin
-                if (bit_count_lectura >= 0) begin
-                    MDIO_IN <= RD_DATA[bit_count_lectura];
-                    bit_count_lectura <= bit_count_lectura - 1;
-                    if (bit_count_lectura == 0) begin
+                    MDIO_IN <= RD_DATA[15 - bit_count_lectura];
+                    bit_count_lectura <= bit_count_lectura + 1;
+                    if (bit_count_lectura == 16) begin
                         next_state <= IDLE;
                     end
                 end
-            end
             default: begin
                 next_state <= IDLE;
             end
