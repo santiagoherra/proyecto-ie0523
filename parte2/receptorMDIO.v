@@ -88,7 +88,7 @@ always @(posedge MDC or posedge reset) begin
                 next_state <= IDLE;
             end
             READ: begin
-                    MDIO_IN <= RD_DATA[15 - bit_count_lectura];
+                    MDIO_IN <= RD_DATA[15 - bit_count_lectura]; 
                     bit_count_lectura <= bit_count_lectura + 1;
                     if (bit_count_lectura == 16) begin
                         next_state <= IDLE;
