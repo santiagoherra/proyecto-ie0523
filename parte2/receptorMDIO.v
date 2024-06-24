@@ -34,11 +34,11 @@ reg [4:0] bit_count_lectura; //conteo de bit a bit para mandar datos de la direc
 //registros en modo lectura
 
 // DEFINICION DE ESTADOS
-localparam IDLE    = 3'b000, //estado quieto para tomar desicion
-            RECEIVE = 3'b010, //estado de recibir datos de MDIO OUT 
-            DONE    = 3'b011, //estado terminado para dividir la informacion y pasar a la accion de escritura o lectura
-            WRITE   = 3'b100, //estado de escritura
-            READ    = 3'b101; //estado de lectura
+localparam IDLE    = 0, //estado quieto para tomar desicion
+            RECEIVE = 2, //estado de recibir datos de MDIO OUT 
+            DONE    = 3, //estado terminado para dividir la informacion y pasar a la accion de escritura o lectura
+            WRITE   = 4, //estado de escritura
+            READ    = 5; //estado de lectura
 
 always @(posedge MDC or posedge reset) begin
     if(reset)begin
@@ -55,13 +55,11 @@ always @(posedge MDC or posedge reset) begin
             IDLE: begin
                 MDIO_DONE <= 0;
                 WR_STB <= 0;
-                if (MDIO_OE) begin
-                    next_state <= RECEIVE;
-                end
+                next_state <= RECEIVE;
             end
             RECEIVE: begin
                 if (MDIO_OE) begin
-                    shift_reg <= {shift_reg[30:0], MDIO_OUT};
+                    shift_reg[31 - bit_count] <= MDIO_OUT;
                     bit_count <= bit_count + 1;
                     if (bit_count == 31) begin
                         next_state <= DONE;
@@ -70,10 +68,10 @@ always @(posedge MDC or posedge reset) begin
             end
             DONE: begin
                 MDIO_DONE <= 1;
-                ADDR <= shift_reg[27:23];
-                if (shift_reg[30:28] == 3'b010) begin
+                ADDR <= shift_reg[23:18];
+                if (shift_reg[30:29] == 2'b01) begin
                     next_state <= WRITE;
-                end else if (shift_reg[30:28] == 3'b011) begin
+                end else if (shift_reg[30:29] == 2'b10) begin
                     next_state <= READ;
                 end else begin
                     next_state <= IDLE;
