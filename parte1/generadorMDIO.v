@@ -1,15 +1,15 @@
 /*
-Estudiante: David Lucas Martínez
-Carnet: B74333
-Estudiante: Kevin Jimenez Acuna
-Carnet: C13876
-Estudiante: Santiago Herra Castro
-Carnet: C1721
+Estudiante: David Lucas Martínez, B74333
+Estudiante: Kevin Jimenez Acuna, C13876
+Estudiante: Santiago Herra Castro, C1721
 Evualuacion: Proyecto
 
-Archivo: MDIO.v
-
+Archivo: generadorMDIO.v
+Descripción: Este es el DUT de la parte 1 del proyecto de Circuitos Digitales II,
+donde se realiza la lógica para el generador de transacciones del MDIO.
 */
+
+// entradas y salidas del generador de transacciones
 module MDIO (
     input clk,
     input reset,
@@ -24,9 +24,16 @@ module MDIO (
     output [5:0] counter
 );
 
-reg [5:0] count;
-reg [1:0] state;
+// REGISTROS LOCALES
+
+reg [5:0] count;  // Registro que almacena los cambios en el contador
+reg [1:0] state;  // Registro que almacena el estado actual de la maquina de estados
 reg [1:0] verify;  // Verifica el "Start of frame" y el opcode segun la clausula 22
+
+// DEFINICION DE ESTADOS
+localparam IDLE = 0,  // Estado intermedio
+            WRITE = 1,  // Estado de escritura
+            READ = 2;  // Estado de lectura
 
 always @(posedge clk) begin
     if(!reset) begin
@@ -43,21 +50,22 @@ always @(posedge clk) begin
         
         MDC <= ~MDC;  //cada posedge se cambia el estado de MDC para dividir a la mitad la frecuencia
         case(state)
-            0 : begin  // Estado intermedio
+            IDLE : begin
                 if(MDIO_START) begin                    
                     count <= 6'd32; // Iniciar el contador
+                    DATA_RDY <= 0;  // Si pasa de READ a IDLE, es necesario reiniciar DATA_RDY
                     
                     // Logica para seleccionar proximo estado
                     if(T_DATA [31:30] == verify) begin  // Condicion ST = 2'b01
                         if (T_DATA [29:28] == verify) begin  // Condicion OP = 2'b01 (Escritura)
-                            state <=1;
+                            state <= WRITE;
                         end else if(T_DATA [29:28] == (verify + 2'b01)) begin  // Condicion OP = 2'b10 (Lectura)
-                            state <= 2;
+                            state <= READ;
                         end
                     end
                 end
             end
-            1 : begin  // Estado de escritura
+            WRITE : begin
                 if(count > 0) begin
                     MDIO_OE <= 1;
                     MDIO_OUT <= T_DATA[count-1]; 
@@ -65,10 +73,10 @@ always @(posedge clk) begin
                 end else begin
                     MDIO_OUT <= 0;
                     MDIO_OE <= 0; //Se pone en 0 cuando terminan los 32 ciclos
-                    state <= 0;
+                    state <= IDLE;
                 end
             end
-            2 : begin  // Estado de lectura
+            READ : begin
                 if(count > 0) begin
                     MDIO_OE <= 1;
                     if(count < 16) begin //cuando sea menor a 16 se baja
@@ -81,15 +89,15 @@ always @(posedge clk) begin
                 end else begin
                     DATA_RDY <= 1;  // Se enciende para comunicar que se concluyo la recepcion
                     RD_DATA <= 0;
-                    state <= 0;
+                    state <= IDLE;
                 end
             end
-            default: state <= 0;
+            default: state <= IDLE;
         endcase
     end
     
 end
 
-assign counter = count;
+assign counter = count;  // Transmitir del registro a la salida
 
 endmodule

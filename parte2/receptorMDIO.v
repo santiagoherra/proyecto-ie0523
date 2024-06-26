@@ -1,14 +1,14 @@
-//Este es la parte 2 del proyecto de Circuitos Digitales II, donde se 
-//realizara el receptor de transacciones del MDIO
-
 /*
 Estudiante: David Lucas Martínez
 Carnet: B74333
 Estudiante: Kevin Jimenez Acuna
 Carnet: C13876
 Estudiante: Santiago Herra Castro
-Carnet: C1721
-Evualuacion: Proyecto
+Carnet: C13721
+Evualuación: Proyecto
+Archivo: receptorMDIO.v
+Descripción: Este es la parte 2 del proyecto de Circuitos Digitales II, donde
+se realizara el receptor de transacciones del MDIO.
 */
 
 //entradas y salidas del receptor
@@ -41,7 +41,7 @@ localparam IDLE    = 0, //estado quieto para tomar desicion
             READ    = 5; //estado de lectura
 
 always @(posedge MDC or posedge reset) begin
-    if(reset)begin
+    if(!reset)begin
         bit_count <= 0;
         shift_reg <= 0;
         MDIO_DONE <= 0;
