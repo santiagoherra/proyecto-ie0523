@@ -73,7 +73,7 @@ always @(posedge MDC or posedge reset) begin
             end
             DONE: begin
                 MDIO_DONE <= 1;
-                ADDR <= shift_reg[23:18];
+                ADDR <= shift_reg[28:23];
                 if (shift_reg[29:28] == 2'b01) begin
                     next_state <= WRITE;
                 end else if (shift_reg[29:28] == 2'b10) begin
